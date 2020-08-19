@@ -1,0 +1,70 @@
+{
+  "name": "click-emulation",
+  "version": "0.0.0",
+  "author": "Yomotsu",
+  "license": "MIT",
+  "main": "dist/click-emulation.js",
+  "jsnext:main": "dist/click-emulation.module.js",
+  "module": "dist/click-emulation.module.js",
+  "types": "dist/index.d.ts",
+  "repository": "yomotsu/click-emulation",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^3.9.1",
+    "@typescript-eslint/parser": "^3.9.1",
+    "downlevel-dts": "^0.6.0",
+    "eslint": "^7.7.0",
+    "eslint-config-mdcs": "^5.0.0",
+    "rollup": "^2.26.3",
+    "rollup-plugin-typescript2": "^0.27.2",
+    "terser": "^5.1.0",
+    "typescript": "^3.9.7"
+  },
+  "scripts": {
+    "dev": "rollup --config --watch",
+    "build": "rollup --config && terser dist/click-emulation.js -o dist/click-emulation.min.js --comments '/^!/' && downlevel-dts . .",
+    "lint": "eslint src --ext ts"
+  },
+  "browserslist": [
+    "last 2 versions",
+    "ie >= 11"
+  ],
+  "eslintConfig": {
+    "root": true,
+    "parser": "@typescript-eslint/parser",
+    "extends": "mdcs",
+    "plugins": [
+      "@typescript-eslint"
+    ],
+    "rules": {
+      "no-unused-vars": 0,
+      "@typescript-eslint/no-unused-vars": 1,
+      "indent": 0,
+      "@typescript-eslint/indent": [
+        "error",
+        "tab",
+        {
+          "SwitchCase": 1,
+          "flatTernaryExpressions": true
+        }
+      ],
+      "no-multi-spaces": [
+        0
+      ],
+      "key-spacing": [
+        0
+      ]
+    }
+  },
+  "eslintIgnore": [
+    "/dist/",
+    "/node_modules/"
+  ],
+  "typesVersions": {
+    "<=3.4.0-0": {
+      "*": [
+        "./"
+      ]
+    }
+  },
+  "keywords": []
+}
