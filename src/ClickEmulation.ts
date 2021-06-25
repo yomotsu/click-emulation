@@ -3,9 +3,6 @@ import { Vector2 } from './Vector2';
 import { isTouchEvent } from './utils/isTouchEvent';
 import { findLatestTouchEvent } from './utils/findLatestTouchEvent';
 
-const clickStartPosition = new Vector2();
-const clickEndPosition = new Vector2();
-
 export interface EmulatedClickEvent {
 	type: 'click';
 	target: Element;
@@ -32,6 +29,8 @@ export class ClickEmulation extends EventDispatcher {
 	private _ongoingTouches: OngoingTouch[] = [];
 	private _clickStart: ( event: Event ) => void;
 	private _clickEnd: ( event: Event ) => void;
+	private _clickStartPosition = new Vector2();
+	private _clickEndPosition = new Vector2();
 
 	constructor( $el: Element ) {
 
@@ -128,10 +127,10 @@ export class ClickEmulation extends EventDispatcher {
 		if ( elapsed > CLICK_TIMEOUT ) return;
 
 		// クリック開始時から距離が動きすぎた場合は無効
-		clickStartPosition.set( ongoingTouch.startX, ongoingTouch.startY );
-		clickEndPosition.set( touch.clientX, touch.clientY );
-		const moveLength = clickEndPosition
-			.sub( clickStartPosition )
+		this._clickStartPosition.set( ongoingTouch.startX, ongoingTouch.startY );
+		this._clickEndPosition.set( touch.clientX, touch.clientY );
+		const moveLength = this._clickEndPosition
+			.sub( this._clickStartPosition )
 			.lengthSq();
 
 		if ( THRESHOLD_LENGTH_SQ < moveLength ) return;
@@ -140,7 +139,13 @@ export class ClickEmulation extends EventDispatcher {
 
 		// その他の touchend よりも後に発火させたい。
 		// 別スレッドにて実行し、後回しにする。
-		setTimeout( () => this.dispatchEvent( { type: 'click', target } ), 0 );
+		// setTimeout( () => this.dispatchEvent( { type: 'click', target } ), 0 );
+		this.dispatchEvent( {
+			type: 'click',
+			target,
+			clientX: this._clickEndPosition.x,
+			clientY: this._clickEndPosition.y,
+		} );
 
 	}
 
