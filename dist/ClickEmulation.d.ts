@@ -9,6 +9,8 @@ export declare class ClickEmulation extends EventDispatcher {
     private _ongoingTouches;
     private _clickStart;
     private _clickEnd;
+    private _clickStartPosition;
+    private _clickEndPosition;
     constructor($el: Element);
     destroy(): void;
     private _handleClickStart;

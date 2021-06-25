@@ -28,6 +28,8 @@ var extendStatics = function(d, b) {
 };
 
 function __extends(d, b) {
+    if (typeof b !== "function" && b !== null)
+        throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
     extendStatics(d, b);
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -126,8 +128,6 @@ function findLatestTouchEvent(event) {
     return changedTouches[changedTouches.length - 1];
 }
 
-var clickStartPosition = new Vector2();
-var clickEndPosition = new Vector2();
 var THRESHOLD_LENGTH = 20;
 var THRESHOLD_LENGTH_SQ = THRESHOLD_LENGTH * THRESHOLD_LENGTH;
 var CLICK_TIMEOUT = 1000;
@@ -137,6 +137,8 @@ var ClickEmulation = (function (_super) {
         var _this = _super.call(this) || this;
         _this._targetElement = null;
         _this._ongoingTouches = [];
+        _this._clickStartPosition = new Vector2();
+        _this._clickEndPosition = new Vector2();
         _this._$el = $el;
         _this._clickStart = _this._handleClickStart.bind(_this);
         _this._clickEnd = _this._handleClickEnd.bind(_this);
@@ -178,7 +180,6 @@ var ClickEmulation = (function (_super) {
         }
     };
     ClickEmulation.prototype._handleClickEnd = function (event) {
-        var _this = this;
         var _isTouchEvent = isTouchEvent(event);
         if (this._ongoingTouches.length <= 1) {
             document.removeEventListener('mouseup', this._clickEnd);
@@ -198,15 +199,20 @@ var ClickEmulation = (function (_super) {
             return;
         if (elapsed > CLICK_TIMEOUT)
             return;
-        clickStartPosition.set(ongoingTouch.startX, ongoingTouch.startY);
-        clickEndPosition.set(touch.clientX, touch.clientY);
-        var moveLength = clickEndPosition
-            .sub(clickStartPosition)
+        this._clickStartPosition.set(ongoingTouch.startX, ongoingTouch.startY);
+        this._clickEndPosition.set(touch.clientX, touch.clientY);
+        var moveLength = this._clickEndPosition
+            .sub(this._clickStartPosition)
             .lengthSq();
         if (THRESHOLD_LENGTH_SQ < moveLength)
             return;
         var target = this._targetElement;
-        setTimeout(function () { return _this.dispatchEvent({ type: 'click', target: target }); }, 0);
+        this.dispatchEvent({
+            type: 'click',
+            target: target,
+            clientX: this._clickEndPosition.x,
+            clientY: this._clickEndPosition.y,
+        });
     };
     return ClickEmulation;
 }(EventDispatcher));
