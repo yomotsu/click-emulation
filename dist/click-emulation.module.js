@@ -4,64 +4,6 @@
  * (c) 2020 @yomotsu
  * Released under the MIT License.
  */
-/*! *****************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */
-/* global Reflect, Promise */
-
-var extendStatics = function(d, b) {
-    extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-    return extendStatics(d, b);
-};
-
-function __extends(d, b) {
-    if (typeof b !== "function" && b !== null)
-        throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-    extendStatics(d, b);
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-}
-
-var EventDispatcher = (function () {
-    function EventDispatcher() {
-        this._listeners = [];
-    }
-    EventDispatcher.prototype.addEventListener = function (listener) {
-        this._listeners.push(listener);
-    };
-    EventDispatcher.prototype.removeEventListener = function (listener) {
-        var index = this._listeners.indexOf(listener);
-        if (index !== -1)
-            this._listeners.splice(index, 1);
-    };
-    EventDispatcher.prototype.removeAllEventListeners = function () {
-        this._listeners = [];
-        return;
-    };
-    EventDispatcher.prototype.dispatchEvent = function (event) {
-        var listenerArray = this._listeners;
-        event.target = this;
-        var array = listenerArray.slice(0);
-        for (var i = 0, l = array.length; i < l; i++) {
-            array[i].call(this, event);
-        }
-    };
-    return EventDispatcher;
-}());
-
 var Vector2 = (function () {
     function Vector2(x, y) {
         if (x === void 0) { x = 0; }
@@ -131,21 +73,38 @@ function findLatestTouchEvent(event) {
 var THRESHOLD_LENGTH = 20;
 var THRESHOLD_LENGTH_SQ = THRESHOLD_LENGTH * THRESHOLD_LENGTH;
 var CLICK_TIMEOUT = 1000;
-var ClickEmulation = (function (_super) {
-    __extends(ClickEmulation, _super);
+var ClickEmulation = (function () {
     function ClickEmulation($el) {
-        var _this = _super.call(this) || this;
-        _this._targetElement = null;
-        _this._ongoingTouches = [];
-        _this._clickStartPosition = new Vector2();
-        _this._clickEndPosition = new Vector2();
-        _this._$el = $el;
-        _this._clickStart = _this._handleClickStart.bind(_this);
-        _this._clickEnd = _this._handleClickEnd.bind(_this);
-        _this._$el.addEventListener('mousedown', _this._clickStart);
-        _this._$el.addEventListener('touchstart', _this._clickStart);
-        return _this;
+        this._targetElement = null;
+        this._ongoingTouches = [];
+        this._clickStartPosition = new Vector2();
+        this._clickEndPosition = new Vector2();
+        this._listeners = [];
+        this._$el = $el;
+        this._clickStart = this._handleClickStart.bind(this);
+        this._clickEnd = this._handleClickEnd.bind(this);
+        this._$el.addEventListener('mousedown', this._clickStart);
+        this._$el.addEventListener('touchstart', this._clickStart);
     }
+    ClickEmulation.prototype.addEventListener = function (listener) {
+        this._listeners.push(listener);
+    };
+    ClickEmulation.prototype.removeEventListener = function (listener) {
+        var index = this._listeners.indexOf(listener);
+        if (index !== -1)
+            this._listeners.splice(index, 1);
+    };
+    ClickEmulation.prototype.removeAllEventListeners = function () {
+        this._listeners = [];
+        return;
+    };
+    ClickEmulation.prototype.dispatchEvent = function (event) {
+        var listenerArray = this._listeners;
+        var array = listenerArray.slice(0);
+        for (var i = 0, l = array.length; i < l; i++) {
+            array[i].call(this, event);
+        }
+    };
     ClickEmulation.prototype.destroy = function () {
         this._$el.removeEventListener('mousedown', this._clickStart);
         this._$el.removeEventListener('touchstart', this._clickStart);
@@ -161,13 +120,12 @@ var ClickEmulation = (function (_super) {
         var _event = isTouchEvent(event)
             ? findLatestTouchEvent(event)
             : event;
-        if (_event.target instanceof Element) {
-            this._targetElement = _event.target;
-        }
-        else {
+        if (!(_event.target instanceof HTMLElement) &&
+            !(_event.target instanceof SVGElement)) {
             this._targetElement = null;
             return;
         }
+        this._targetElement = _event.target;
         this._ongoingTouches.push({
             startX: _event.clientX,
             startY: _event.clientY,
@@ -215,6 +173,6 @@ var ClickEmulation = (function (_super) {
         });
     };
     return ClickEmulation;
-}(EventDispatcher));
+}());
 
 export default ClickEmulation;
