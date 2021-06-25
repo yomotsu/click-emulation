@@ -1,4 +1,3 @@
-import { EventDispatcher, Listener } from './EventDispatcher';
 import { Vector2 } from './Vector2';
 import { isTouchEvent } from './utils/isTouchEvent';
 import { findLatestTouchEvent } from './utils/findLatestTouchEvent';
@@ -14,7 +13,6 @@ interface OngoingTouch {
 	startTime: number,
 	touch: Touch | MouseEvent,
 }
-
 interface ClickEmulationClickEvent {
   type: 'click';
 	target: HTMLElement | SVGElement,
@@ -22,9 +20,7 @@ interface ClickEmulationClickEvent {
 	clientY: number,
 }
 
-interface ClickEmulationEventMap {
-  click: ClickEmulationClickEvent;
-}
+type Listener = ( event: ClickEmulationClickEvent ) => void;
 
 // クリックとして有効な範囲のピクセル数
 // クリック開始から thresholdLength 以上動いていた場合はクリックとして扱わない
@@ -33,7 +29,7 @@ const THRESHOLD_LENGTH_SQ = THRESHOLD_LENGTH * THRESHOLD_LENGTH;
 // touchstart から touchend までで、クリックを無効にするまでの時間。ミリ秒
 const CLICK_TIMEOUT = 1000;
 
-export class ClickEmulation extends EventDispatcher {
+export class ClickEmulation {
 
 	private _$el: HTMLElement | SVGElement;
 	private _targetElement: HTMLElement | SVGElement | null = null;
@@ -42,10 +38,10 @@ export class ClickEmulation extends EventDispatcher {
 	private _clickEnd: ( event: Event ) => void;
 	private _clickStartPosition = new Vector2();
 	private _clickEndPosition = new Vector2();
+	
+	private _listeners: Listener[] = [];
 
 	constructor( $el: HTMLElement | SVGElement ) {
-
-		super();
 
 		this._$el = $el;
 
@@ -55,15 +51,39 @@ export class ClickEmulation extends EventDispatcher {
 		this._$el.addEventListener( 'touchstart', this._clickStart );
 
 	}
+	
+	addEventListener( listener: Listener ): void {
 
-  addEventListener<K extends keyof ClickEmulationEventMap>(
-    type: K,
-    listener: ( event: ClickEmulationEventMap[ K ] ) => any,
-  ): void {
+		this._listeners.push( listener );
 
-    super.addEventListener( type, listener as Listener );
+	}
 
-  }
+	removeEventListener( listener: Listener ): void {
+
+		const index = this._listeners.indexOf( listener );
+		if ( index !== - 1 ) this._listeners.splice( index, 1 );
+
+	}
+
+	removeAllEventListeners(): void {
+
+		this._listeners = [];
+		return;
+
+	}
+
+	dispatchEvent( event: ClickEmulationClickEvent ): void {
+
+		const listenerArray = this._listeners;
+		const array = listenerArray.slice( 0 );
+
+		for ( let i = 0, l = array.length; i < l; i ++ ) {
+
+			array[ i ].call( this, event );
+
+		}
+
+	}
 
 	destroy(): void {
 
