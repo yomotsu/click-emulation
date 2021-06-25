@@ -1,4 +1,4 @@
-import { EventDispatcher } from './EventDispatcher';
+import { EventDispatcher, Listener } from './EventDispatcher';
 import { Vector2 } from './Vector2';
 import { isTouchEvent } from './utils/isTouchEvent';
 import { findLatestTouchEvent } from './utils/findLatestTouchEvent';
@@ -15,6 +15,17 @@ interface OngoingTouch {
 	touch: Touch | MouseEvent,
 }
 
+interface ClickEmulationClickEvent {
+  type: 'click';
+	target: HTMLElement | SVGElement,
+	clientX: number,
+	clientY: number,
+}
+
+interface ClickEmulationEventMap {
+  click: ClickEmulationClickEvent;
+}
+
 // クリックとして有効な範囲のピクセル数
 // クリック開始から thresholdLength 以上動いていた場合はクリックとして扱わない
 const THRESHOLD_LENGTH = 20;
@@ -24,15 +35,15 @@ const CLICK_TIMEOUT = 1000;
 
 export class ClickEmulation extends EventDispatcher {
 
-	private _$el: Element;
-	private _targetElement: Element | null = null;
+	private _$el: HTMLElement | SVGElement;
+	private _targetElement: HTMLElement | SVGElement | null = null;
 	private _ongoingTouches: OngoingTouch[] = [];
 	private _clickStart: ( event: Event ) => void;
 	private _clickEnd: ( event: Event ) => void;
 	private _clickStartPosition = new Vector2();
 	private _clickEndPosition = new Vector2();
 
-	constructor( $el: Element ) {
+	constructor( $el: HTMLElement | SVGElement ) {
 
 		super();
 
@@ -44,6 +55,15 @@ export class ClickEmulation extends EventDispatcher {
 		this._$el.addEventListener( 'touchstart', this._clickStart );
 
 	}
+
+  addEventListener<K extends keyof ClickEmulationEventMap>(
+    type: K,
+    listener: ( event: ClickEmulationEventMap[ K ] ) => any,
+  ): void {
+
+    super.addEventListener( type, listener as Listener );
+
+  }
 
 	destroy(): void {
 
@@ -69,16 +89,17 @@ export class ClickEmulation extends EventDispatcher {
 			? findLatestTouchEvent( event as TouchEvent )
 			: event as MouseEvent;
 
-		if ( _event.target instanceof Element ) {
-
-			this._targetElement = _event.target;
-
-		} else {
+		if (
+			! ( _event.target instanceof HTMLElement ) &&
+			! ( _event.target instanceof SVGElement )
+		) {
 
 			this._targetElement = null;
 			return;
 
 		}
+
+		this._targetElement = _event.target;
 
 		this._ongoingTouches.push( {
 			startX: _event.clientX,
