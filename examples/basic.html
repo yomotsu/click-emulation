@@ -13,7 +13,10 @@
 <script src="../dist/click-emulation.js"></script>
 <script>
 const clickEmulation = new ClickEmulation( document.getElementById( 'button' ) );
-clickEmulation.addEventListener( () => alert( 'clicked' ) );
+clickEmulation.addEventListener( ( event ) => {
+  console.log( event );
+  alert( 'clicked' );
+ } );
 
 </script>
 

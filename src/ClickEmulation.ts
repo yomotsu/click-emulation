@@ -1,26 +1,20 @@
 import { Vector2 } from './Vector2';
 import { isTouchEvent } from './utils/isTouchEvent';
 import { findLatestTouchEvent } from './utils/findLatestTouchEvent';
-
-export interface EmulatedClickEvent {
-	type: 'click';
-	target: Element;
-}
-
 interface OngoingTouch {
 	startX: number,
 	startY: number,
 	startTime: number,
 	touch: Touch | MouseEvent,
 }
-interface ClickEmulationClickEvent {
+export interface EmulatedClickEvent {
   type: 'click';
 	target: HTMLElement | SVGElement,
 	clientX: number,
 	clientY: number,
 }
 
-type Listener = ( event: ClickEmulationClickEvent ) => void;
+type Listener = ( event: EmulatedClickEvent ) => void;
 
 // クリックとして有効な範囲のピクセル数
 // クリック開始から thresholdLength 以上動いていた場合はクリックとして扱わない
@@ -72,7 +66,7 @@ export class ClickEmulation {
 
 	}
 
-	dispatchEvent( event: ClickEmulationClickEvent ): void {
+	dispatchEvent( event: EmulatedClickEvent ): void {
 
 		const listenerArray = this._listeners;
 		const array = listenerArray.slice( 0 );
@@ -178,14 +172,11 @@ export class ClickEmulation {
 
 		const target = this._targetElement;
 
-		// その他の touchend よりも後に発火させたい。
-		// 別スレッドにて実行し、後回しにする。
-		// setTimeout( () => this.dispatchEvent( { type: 'click', target } ), 0 );
 		this.dispatchEvent( {
 			type: 'click',
 			target,
-			clientX: this._clickEndPosition.x,
-			clientY: this._clickEndPosition.y,
+			clientX: touch.clientX,
+			clientY: touch.clientY,
 		} );
 
 	}

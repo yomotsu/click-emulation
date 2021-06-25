@@ -174,8 +174,8 @@
 	        this.dispatchEvent({
 	            type: 'click',
 	            target: target,
-	            clientX: this._clickEndPosition.x,
-	            clientY: this._clickEndPosition.y,
+	            clientX: touch.clientX,
+	            clientY: touch.clientY,
 	        });
 	    };
 	    return ClickEmulation;

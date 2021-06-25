@@ -1,14 +1,10 @@
 export interface EmulatedClickEvent {
     type: 'click';
-    target: Element;
-}
-interface ClickEmulationClickEvent {
-    type: 'click';
     target: HTMLElement | SVGElement;
     clientX: number;
     clientY: number;
 }
-declare type Listener = (event: ClickEmulationClickEvent) => void;
+declare type Listener = (event: EmulatedClickEvent) => void;
 export declare class ClickEmulation {
     private _$el;
     private _targetElement;
@@ -22,7 +18,7 @@ export declare class ClickEmulation {
     addEventListener(listener: Listener): void;
     removeEventListener(listener: Listener): void;
     removeAllEventListeners(): void;
-    dispatchEvent(event: ClickEmulationClickEvent): void;
+    dispatchEvent(event: EmulatedClickEvent): void;
     destroy(): void;
     private _handleClickStart;
     private _handleClickEnd;
