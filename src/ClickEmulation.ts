@@ -12,6 +12,7 @@ export interface EmulatedClickEvent {
 	target: HTMLElement | SVGElement;
 	clientX: number;
 	clientY: number;
+	buttons: number; // 0 | 1 | 2 | 4 | 8 | 16;
 	altKey: boolean;
 	ctrlKey: boolean;
 	shiftKey: boolean;
@@ -179,6 +180,7 @@ export class ClickEmulation {
 			target: this._targetElement,
 			clientX: touch.clientX,
 			clientY: touch.clientY,
+			buttons: 'buttons' in touch ? touch.buttons : 1,
 			altKey: 'altKey' in touch ? touch.altKey : false,
 			ctrlKey: 'ctrlKey' in touch ? touch.ctrlKey : false,
 			shiftKey: 'shiftKey' in touch ? touch.shiftKey : false,
