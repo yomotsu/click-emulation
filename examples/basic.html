@@ -14,10 +14,17 @@
 <script>
 const clickEmulation = new ClickEmulation( document.getElementById( 'button' ) );
 clickEmulation.addEventListener( ( event ) => {
-  console.log( event );
-  alert( 'clicked' );
- } );
 
+	console.log( event );
+	// alert( 'clicked' );
+
+} );
+
+document.getElementById( 'button' ).addEventListener( 'contextmenu', ( event ) => {
+
+	event.preventDefault();
+
+} );
 </script>
 
 </body>

@@ -180,10 +180,10 @@ export class ClickEmulation {
 			target: this._targetElement,
 			clientX: touch.clientX,
 			clientY: touch.clientY,
-			buttons: 'buttons' in touch ? touch.buttons : 1,
-			altKey: 'altKey' in touch ? touch.altKey : false,
-			ctrlKey: 'ctrlKey' in touch ? touch.ctrlKey : false,
-			shiftKey: 'shiftKey' in touch ? touch.shiftKey : false,
+			buttons: 'buttons' in ongoingTouch.touch ? ongoingTouch.touch.buttons : 1,
+			altKey: 'altKey' in ongoingTouch.touch ? ongoingTouch.touch.altKey : false,
+			ctrlKey: 'ctrlKey' in ongoingTouch.touch ? ongoingTouch.touch.ctrlKey : false,
+			shiftKey: 'shiftKey' in ongoingTouch.touch ? ongoingTouch.touch.shiftKey : false,
 			timeStamp: event.timeStamp,
 		} );
 
