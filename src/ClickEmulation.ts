@@ -8,17 +8,21 @@ interface OngoingTouch {
 	touch: Touch | MouseEvent,
 }
 export interface EmulatedClickEvent {
-  type: 'click';
-	target: HTMLElement | SVGElement,
-	clientX: number,
-	clientY: number,
+	type: 'click';
+	target: HTMLElement | SVGElement;
+	clientX: number;
+	clientY: number;
+	altKey: boolean;
+	ctrlKey: boolean;
+	shiftKey: boolean;
+	timeStamp: number;
 }
 
 type Listener = ( event: EmulatedClickEvent ) => void;
 
 // クリックとして有効な範囲のピクセル数
 // クリック開始から thresholdLength 以上動いていた場合はクリックとして扱わない
-const THRESHOLD_LENGTH = 20;
+const THRESHOLD_LENGTH = 16;
 const THRESHOLD_LENGTH_SQ = THRESHOLD_LENGTH * THRESHOLD_LENGTH;
 // touchstart から touchend までで、クリックを無効にするまでの時間。ミリ秒
 const CLICK_TIMEOUT = 1000;
@@ -32,7 +36,7 @@ export class ClickEmulation {
 	private _clickEnd: ( event: Event ) => void;
 	private _clickStartPosition = new Vector2();
 	private _clickEndPosition = new Vector2();
-	
+
 	private _listeners: Listener[] = [];
 
 	constructor( $el: HTMLElement | SVGElement ) {
@@ -45,7 +49,7 @@ export class ClickEmulation {
 		this._$el.addEventListener( 'touchstart', this._clickStart );
 
 	}
-	
+
 	addEventListener( listener: Listener ): void {
 
 		this._listeners.push( listener );
@@ -170,13 +174,15 @@ export class ClickEmulation {
 
 		if ( THRESHOLD_LENGTH_SQ < moveLength ) return;
 
-		const target = this._targetElement;
-
 		this.dispatchEvent( {
 			type: 'click',
-			target,
+			target: this._targetElement,
 			clientX: touch.clientX,
 			clientY: touch.clientY,
+			altKey: 'altKey' in touch ? touch.altKey : false,
+			ctrlKey: 'ctrlKey' in touch ? touch.ctrlKey : false,
+			shiftKey: 'shiftKey' in touch ? touch.shiftKey : false,
+			timeStamp: event.timeStamp,
 		} );
 
 	}

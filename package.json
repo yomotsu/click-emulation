@@ -7,26 +7,29 @@
   "jsnext:main": "dist/click-emulation.module.js",
   "module": "dist/click-emulation.module.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "repository": "yomotsu/click-emulation",
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.28.0",
-    "@typescript-eslint/parser": "^4.28.0",
-    "downlevel-dts": "^0.7.0",
-    "eslint": "^7.29.0",
+    "@rollup/plugin-typescript": "^11.1.1",
+    "@typescript-eslint/eslint-plugin": "^5.59.9",
+    "@typescript-eslint/parser": "^5.59.9",
+    "eslint": "^8.42.0",
     "eslint-config-mdcs": "^5.0.0",
-    "rollup": "^2.52.2",
-    "rollup-plugin-typescript2": "^0.30.0",
-    "terser": "^5.7.0",
-    "typescript": "^4.3.4"
+    "rollup": "^3.24.0",
+    "terser": "^5.17.7",
+    "typescript": "^5.1.3"
   },
   "scripts": {
     "dev": "rollup --config --watch",
-    "build": "rollup --config && terser dist/click-emulation.js -o dist/click-emulation.min.js --comments '/^!/' && downlevel-dts . .",
+    "build": "rollup --config && terser dist/click-emulation.js -o dist/click-emulation.min.js --comments '/^!/'",
     "lint": "eslint src --ext ts"
   },
   "browserslist": [
-    "last 2 versions",
-    "ie >= 11"
+    "> 1%",
+    "last 3 versions",
+    "not dead"
   ],
   "eslintConfig": {
     "root": true,
@@ -49,6 +52,12 @@
       ],
       "no-multi-spaces": [
         0
+      ],
+      "no-trailing-spaces": [
+        "error",
+        {
+          "ignoreComments": true
+        }
       ],
       "key-spacing": [
         0
