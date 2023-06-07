@@ -159,6 +159,7 @@ class ClickEmulation {
             target: this._targetElement,
             clientX: touch.clientX,
             clientY: touch.clientY,
+            buttons: 'buttons' in touch ? touch.buttons : 1,
             altKey: 'altKey' in touch ? touch.altKey : false,
             ctrlKey: 'ctrlKey' in touch ? touch.ctrlKey : false,
             shiftKey: 'shiftKey' in touch ? touch.shiftKey : false,

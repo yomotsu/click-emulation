@@ -3,6 +3,7 @@ export interface EmulatedClickEvent {
     target: HTMLElement | SVGElement;
     clientX: number;
     clientY: number;
+    buttons: number;
     altKey: boolean;
     ctrlKey: boolean;
     shiftKey: boolean;
