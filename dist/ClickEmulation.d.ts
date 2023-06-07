@@ -3,8 +3,12 @@ export interface EmulatedClickEvent {
     target: HTMLElement | SVGElement;
     clientX: number;
     clientY: number;
+    altKey: boolean;
+    ctrlKey: boolean;
+    shiftKey: boolean;
+    timeStamp: number;
 }
-declare type Listener = (event: EmulatedClickEvent) => void;
+type Listener = (event: EmulatedClickEvent) => void;
 export declare class ClickEmulation {
     private _$el;
     private _targetElement;

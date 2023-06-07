@@ -4,77 +4,65 @@
  * (c) 2020 @yomotsu
  * Released under the MIT License.
  */
-var Vector2 = (function () {
-    function Vector2(x, y) {
-        if (x === void 0) { x = 0; }
-        if (y === void 0) { y = 0; }
+class Vector2 {
+    constructor(x = 0, y = 0) {
         this._x = x;
         this._y = y;
     }
-    Object.defineProperty(Vector2.prototype, "isVector2", {
-        get: function () {
-            return true;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Vector2.prototype, "x", {
-        get: function () {
-            return this._x;
-        },
-        set: function (x) {
-            if (this._x === x)
-                return;
-            this._x = x;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Vector2.prototype, "y", {
-        get: function () {
-            return this._y;
-        },
-        set: function (y) {
-            if (this._y === y)
-                return;
-            this._y = y;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Vector2.prototype.set = function (x, y) {
+    get isVector2() {
+        return true;
+    }
+    get x() {
+        return this._x;
+    }
+    set x(x) {
+        if (this._x === x)
+            return;
+        this._x = x;
+    }
+    get y() {
+        return this._y;
+    }
+    set y(y) {
+        if (this._y === y)
+            return;
+        this._y = y;
+    }
+    set(x, y) {
         if (this._x !== x || this._y !== y) {
             this._x = x;
             this._y = y;
         }
         return this;
-    };
-    Vector2.prototype.add = function (v) {
+    }
+    add(v) {
         return this.set(this.x + v.x, this.y + v.y);
-    };
-    Vector2.prototype.sub = function (v) {
+    }
+    sub(v) {
         return this.set(this.x - v.x, this.y - v.y);
-    };
-    Vector2.prototype.lengthSq = function () {
+    }
+    lengthSq() {
         return this.x * this.x + this.y * this.y;
-    };
-    return Vector2;
-}());
+    }
+}
 
 function isTouchEvent(event) {
     return 'TouchEvent' in window && event instanceof TouchEvent;
 }
 
 function findLatestTouchEvent(event) {
-    var changedTouches = event.changedTouches;
+    const changedTouches = event.changedTouches;
     return changedTouches[changedTouches.length - 1];
 }
 
-var THRESHOLD_LENGTH = 20;
-var THRESHOLD_LENGTH_SQ = THRESHOLD_LENGTH * THRESHOLD_LENGTH;
-var CLICK_TIMEOUT = 1000;
-var ClickEmulation = (function () {
-    function ClickEmulation($el) {
+// クリックとして有効な範囲のピクセル数
+// クリック開始から thresholdLength 以上動いていた場合はクリックとして扱わない
+const THRESHOLD_LENGTH = 16;
+const THRESHOLD_LENGTH_SQ = THRESHOLD_LENGTH * THRESHOLD_LENGTH;
+// touchstart から touchend までで、クリックを無効にするまでの時間。ミリ秒
+const CLICK_TIMEOUT = 1000;
+class ClickEmulation {
+    constructor($el) {
         this._targetElement = null;
         this._ongoingTouches = [];
         this._clickStartPosition = new Vector2();
@@ -86,38 +74,38 @@ var ClickEmulation = (function () {
         this._$el.addEventListener('mousedown', this._clickStart);
         this._$el.addEventListener('touchstart', this._clickStart);
     }
-    ClickEmulation.prototype.addEventListener = function (listener) {
+    addEventListener(listener) {
         this._listeners.push(listener);
-    };
-    ClickEmulation.prototype.removeEventListener = function (listener) {
-        var index = this._listeners.indexOf(listener);
+    }
+    removeEventListener(listener) {
+        const index = this._listeners.indexOf(listener);
         if (index !== -1)
             this._listeners.splice(index, 1);
-    };
-    ClickEmulation.prototype.removeAllEventListeners = function () {
+    }
+    removeAllEventListeners() {
         this._listeners = [];
         return;
-    };
-    ClickEmulation.prototype.dispatchEvent = function (event) {
-        var listenerArray = this._listeners;
-        var array = listenerArray.slice(0);
-        for (var i = 0, l = array.length; i < l; i++) {
+    }
+    dispatchEvent(event) {
+        const listenerArray = this._listeners;
+        const array = listenerArray.slice(0);
+        for (let i = 0, l = array.length; i < l; i++) {
             array[i].call(this, event);
         }
-    };
-    ClickEmulation.prototype.destroy = function () {
+    }
+    destroy() {
         this._$el.removeEventListener('mousedown', this._clickStart);
         this._$el.removeEventListener('touchstart', this._clickStart);
         document.removeEventListener('mouseup', this._clickEnd);
         document.removeEventListener('touchend', this._clickEnd);
-    };
-    ClickEmulation.prototype._handleClickStart = function (event) {
+    }
+    _handleClickStart(event) {
         event.preventDefault();
         if (this._ongoingTouches.length === 0) {
             document.removeEventListener('mouseup', this._clickEnd);
             document.removeEventListener('touchend', this._clickEnd);
         }
-        var _event = isTouchEvent(event)
+        const _event = isTouchEvent(event)
             ? findLatestTouchEvent(event)
             : event;
         if (!(_event.target instanceof HTMLElement) &&
@@ -136,43 +124,47 @@ var ClickEmulation = (function () {
             document.addEventListener('mouseup', this._clickEnd);
             document.addEventListener('touchend', this._clickEnd);
         }
-    };
-    ClickEmulation.prototype._handleClickEnd = function (event) {
-        var _isTouchEvent = isTouchEvent(event);
+    }
+    _handleClickEnd(event) {
+        const _isTouchEvent = isTouchEvent(event);
         if (this._ongoingTouches.length <= 1) {
             document.removeEventListener('mouseup', this._clickEnd);
             document.removeEventListener('touchend', this._clickEnd);
         }
-        var touch = _isTouchEvent
+        const touch = _isTouchEvent
             ? event.changedTouches[0]
             : event;
-        var ongoingTouchIndex = _isTouchEvent
-            ? this._ongoingTouches.findIndex(function (o) { return o.touch.identifier === touch.identifier; })
+        const ongoingTouchIndex = _isTouchEvent
+            ? this._ongoingTouches.findIndex((o) => o.touch.identifier === touch.identifier)
             : 0;
-        var ongoingTouch = this._ongoingTouches[ongoingTouchIndex];
+        const ongoingTouch = this._ongoingTouches[ongoingTouchIndex];
         this._ongoingTouches.splice(ongoingTouchIndex, 1);
-        var clickEndTime = performance.now();
-        var elapsed = clickEndTime - ongoingTouch.startTime;
+        const clickEndTime = performance.now();
+        const elapsed = clickEndTime - ongoingTouch.startTime;
         if (!this._targetElement)
             return;
+        // 長すぎるクリックは無効
         if (elapsed > CLICK_TIMEOUT)
             return;
+        // クリック開始時から距離が動きすぎた場合は無効
         this._clickStartPosition.set(ongoingTouch.startX, ongoingTouch.startY);
         this._clickEndPosition.set(touch.clientX, touch.clientY);
-        var moveLength = this._clickEndPosition
+        const moveLength = this._clickEndPosition
             .sub(this._clickStartPosition)
             .lengthSq();
         if (THRESHOLD_LENGTH_SQ < moveLength)
             return;
-        var target = this._targetElement;
         this.dispatchEvent({
             type: 'click',
-            target: target,
+            target: this._targetElement,
             clientX: touch.clientX,
             clientY: touch.clientY,
+            altKey: 'altKey' in touch ? touch.altKey : false,
+            ctrlKey: 'ctrlKey' in touch ? touch.ctrlKey : false,
+            shiftKey: 'shiftKey' in touch ? touch.shiftKey : false,
+            timeStamp: event.timeStamp,
         });
-    };
-    return ClickEmulation;
-}());
+    }
+}
 
-export default ClickEmulation;
+export { ClickEmulation as default };
